@@ -26,7 +26,6 @@ import threading
 import time
 from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional, Sequence, Set
-from urllib.parse import quote
 
 
 RUNTIME_ROOT = Path(__file__).resolve().parent.parent
@@ -983,8 +982,7 @@ def output_open_command(directory: Path, environment: Dict[str, str]) -> Optiona
 def terminal_hyperlink(path: Path) -> str:
     """OSC 8 hyperlink; well-behaved terminals make it clickable, others just
     print the plain path since unrecognized OSC sequences are ignored."""
-    uri = "file://" + quote(str(path))
-    return f"\033]8;;{uri}\033\\{path}\033]8;;\033\\"
+    return f"\033]8;;{path.as_uri()}\033\\{path}\033]8;;\033\\"
 
 
 def open_artifact_directories(
