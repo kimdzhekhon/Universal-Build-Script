@@ -26,6 +26,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional, Sequence, Set
+from urllib.parse import quote
 
 
 RUNTIME_ROOT = Path(__file__).resolve().parent.parent
@@ -979,6 +980,13 @@ def output_open_command(directory: Path, environment: Dict[str, str]) -> Optiona
     return [executable, str(directory)] if executable else None
 
 
+def terminal_hyperlink(path: Path) -> str:
+    """OSC 8 hyperlink; well-behaved terminals make it clickable, others just
+    print the plain path since unrecognized OSC sequences are ignored."""
+    uri = "file://" + quote(str(path))
+    return f"\033]8;;{uri}\033\\{path}\033]8;;\033\\"
+
+
 def open_artifact_directories(
     projects: Sequence[Project], environment: Optional[Dict[str, str]] = None,
 ) -> List[str]:
@@ -1005,7 +1013,7 @@ def open_artifact_directories(
             eprint(f"{YELLOW}결과 폴더를 열지 못했습니다: {directory} ({error}){NC}")
             continue
         opened.append(str(directory))
-        print(f"{CYAN}📂 빌드 결과 폴더: {directory}{NC}")
+        print(f"{CYAN}📂 빌드 결과 폴더: {terminal_hyperlink(directory)}{NC}")
     return opened
 
 
